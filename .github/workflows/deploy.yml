@@ -41,18 +41,30 @@ jobs:
             -t "$ECR_REGISTRY/$CLEAN_REPO:latest" \
             app/
 
+# Step 4: Build and Push Docker Image
+      - name: Build, Tag, and Push Docker Image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          CLEAN_REPO=$(echo "$ECR_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+
+          docker build \
+            -t "$ECR_REGISTRY/$CLEAN_REPO:$IMAGE_TAG" \
+            -t "$ECR_REGISTRY/$CLEAN_REPO:latest" \
+            app/
+
           docker push "$ECR_REGISTRY/$CLEAN_REPO:$IMAGE_TAG"
           docker push "$ECR_REGISTRY/$CLEAN_REPO:latest"
+
       # Step 5: Configure kubectl for EKS
       - name: Update Kubeconfig
+        env:
+          CLUSTER_NAME: ${{ secrets.EKS_CLUSTER_NAME }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws eks update-kubeconfig \
-            --name "${{ secrets.EKS_CLUSTER_NAME }}" \
-            --region "${{ secrets.AWS_REGION }}"
+          TARGET_CLUSTER="${CLUSTER_NAME:-Firstapp-exp-eks}"
+          TARGET_REGION="${AWS_REGION:-us-east-1}"
 
-      # Step 6: Deploy to EKS
-      - name: Deploy to EKS
-        run: |
-          kubectl apply -f k8s/
-          kubectl rollout restart deployment/firstapp-exp-deployment
-          kubectl rollout status deployment/firstapp-exp-deployment
+          aws eks update-kubeconfig --name "$TARGET_CLUSTER" --region "$TARGET_REGION"
