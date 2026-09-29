@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firstapp-exp | Interactive Expense Tracker</title>
+    <title>Firstapp-exp | Interactive Dashboard</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,91 +13,103 @@
         }
 
         body {
-            background-color: #0f172a;
+            background-color: #0b0f19;
             color: #f8fafc;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 24px 16px;
         }
 
-        .card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
+        .dashboard {
+            background-color: #151e32;
+            border: 1px solid #283553;
+            border-radius: 16px;
             padding: 32px;
-            max-width: 520px;
+            max-width: 580px;
             width: 100%;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
         }
 
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         h1 {
-            font-size: 1.75rem;
+            font-size: 1.8rem;
             color: #ffffff;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
         .badge {
-            background-color: #10b981;
-            color: #064e3b;
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
             font-size: 0.75rem;
             font-weight: 600;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 9999px;
         }
 
         .subtitle {
-            color: #94a3b8;
+            color: #8b9bb4;
             font-size: 0.95rem;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
-        .total-box {
-            background: linear-gradient(135deg, #1e40af, #3b82f6);
-            border-radius: 8px;
+        /* Stats Cards Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background-color: #0b1120;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
             padding: 16px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .total-title {
-            font-size: 0.85rem;
+        .stat-label {
+            font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #bfdbfe;
+            color: #64748b;
+            margin-bottom: 6px;
         }
 
-        .total-amount {
-            font-size: 1.75rem;
+        .stat-value {
+            font-size: 1.5rem;
             font-weight: 700;
-            color: #ffffff;
         }
 
-        .form-group {
+        .stat-value.total { color: #38bdf8; }
+        .stat-value.count { color: #f43f5e; }
+
+        /* Form Inputs */
+        .form-grid {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
+            grid-template-columns: 2fr 1.2fr 1fr auto;
             gap: 8px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         input {
-            background-color: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 6px;
-            padding: 10px;
+            background-color: #0b1120;
+            border: 1px solid #283553;
+            border-radius: 8px;
+            padding: 12px;
             color: #ffffff;
             font-size: 0.9rem;
             outline: none;
+            transition: border-color 0.2s;
         }
 
         input:focus {
@@ -106,106 +118,153 @@
 
         button.add-btn {
             background-color: #38bdf8;
-            color: #0f172a;
+            color: #0b0f19;
             border: none;
-            border-radius: 6px;
-            padding: 10px 14px;
-            font-weight: 600;
+            border-radius: 8px;
+            padding: 12px 18px;
+            font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
 
         button.add-btn:hover {
             background-color: #7dd3fc;
+            transform: translateY(-1px);
+        }
+
+        /* Expense List */
+        .list-header {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.05em;
         }
 
         .expense-list {
-            max-height: 240px;
+            max-height: 280px;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 4px;
         }
 
         .item {
-            background-color: #0f172a;
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 10px;
+            background-color: #0b1120;
+            border: 1px solid #1e2d4a;
+            border-radius: 10px;
+            padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            transition: border-color 0.2s;
+        }
+
+        .item:hover {
+            border-color: #3b82f6;
         }
 
         .item-title {
-            font-weight: 500;
-            color: #e2e8f0;
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 0.95rem;
         }
 
         .item-sub {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             color: #64748b;
+            margin-top: 2px;
         }
 
         .item-right {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
         }
 
         .amount {
-            font-size: 1rem;
-            font-weight: 600;
+            font-size: 1.05rem;
+            font-weight: 700;
             color: #38bdf8;
         }
 
         .delete-btn {
-            background: none;
-            border: none;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
             color: #ef4444;
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 1rem;
-            opacity: 0.7;
+            font-size: 1.1rem;
+            line-height: 1;
+            transition: all 0.2s;
         }
 
         .delete-btn:hover {
-            opacity: 1;
+            background: #ef4444;
+            color: #ffffff;
         }
 
+        .empty-state {
+            text-align: center;
+            color: #64748b;
+            padding: 24px;
+            font-size: 0.9rem;
+        }
+
+        /* Footer Status */
         .status-bar {
-            margin-top: 20px;
-            padding-top: 16px;
-            border-top: 1px solid #334155;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid #283553;
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
-            color: #94a3b8;
+            font-size: 0.82rem;
+            color: #64748b;
         }
 
         .status-online {
             color: #34d399;
-            font-weight: 500;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
+    <div class="dashboard">
         <div class="header">
             <h1>Firstapp-exp</h1>
             <span class="badge">Live v1.0</span>
         </div>
-        <p class="subtitle">Enterprise Expense Tracker Service</p>
+        <p class="subtitle">Enterprise Expense Tracker Dashboard</p>
 
-        <div class="total-box">
-            <span class="total-title">Total Spending</span>
-            <span class="total-amount" id="total-amount">$200.00</span>
+        <!-- Dynamic Summary Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Expenses</div>
+                <div class="stat-value total" id="total-amount">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Transactions</div>
+                <div class="stat-value count" id="total-count">0</div>
+            </div>
         </div>
 
-        <form class="form-group" id="expense-form">
-            <input type="text" id="desc" placeholder="Expense name" required>
+        <!-- Add Expense Form -->
+        <form class="form-grid" id="expense-form">
+            <input type="text" id="desc" placeholder="Expense description" required>
             <input type="text" id="cat" placeholder="Category" required>
-            <input type="number" id="amt" placeholder="Amount" step="0.01" required>
-            <button type="submit" class="add-btn">Add</button>
+            <input type="number" id="amt" placeholder="Amount" step="0.01" min="0.01" required>
+            <button type="submit" class="add-btn">+</button>
         </form>
 
+        <div class="list-header">Active Transactions</div>
         <div class="expense-list" id="expense-list"></div>
 
         <div class="status-bar">
@@ -215,6 +274,7 @@
     </div>
 
     <script>
+        // Initial dataset
         let expenses = [
             { id: 1, title: 'AWS Cloud Hosting', category: 'Infrastructure', amount: 140.00 },
             { id: 2, title: 'CI/CD Pipeline Runners', category: 'DevOps Automation', amount: 60.00 }
@@ -225,43 +285,54 @@
             list.innerHTML = '';
             let total = 0;
 
-            expenses.forEach(item => {
-                total += item.amount;
-                const div = document.createElement('div');
-                div.className = 'item';
-                div.innerHTML = `
-                    <div>
-                        <div class="item-title">${item.title}</div>
-                        <div class="item-sub">${item.category}</div>
-                    </div>
-                    <div class="item-right">
-                        <span class="amount">$${item.amount.toFixed(2)}</span>
-                        <button class="delete-btn" onclick="removeExpense(${item.id})">&times;</button>
-                    </div>
-                `;
-                list.appendChild(div);
-            });
+            if (expenses.length === 0) {
+                list.innerHTML = `<div class="empty-state">No active expenses logged yet.</div>`;
+            } else {
+                expenses.forEach(item => {
+                    total += item.amount;
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `
+                        <div>
+                            <div class="item-title">${escapeHtml(item.title)}</div>
+                            <div class="item-sub">${escapeHtml(item.category)}</div>
+                        </div>
+                        <div class="item-right">
+                            <span class="amount">$${item.amount.toFixed(2)}</span>
+                            <button class="delete-btn" onclick="removeExpense(${item.id})">&times;</button>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            }
 
             document.getElementById('total-amount').innerText = `$${total.toFixed(2)}`;
+            document.getElementById('total-count').innerText = expenses.length;
         }
 
         document.getElementById('expense-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const title = document.getElementById('desc').value;
-            const category = document.getElementById('cat').value;
+            const title = document.getElementById('desc').value.trim();
+            const category = document.getElementById('cat').value.trim();
             const amount = parseFloat(document.getElementById('amt').value);
 
-            expenses.push({ id: Date.now(), title, category, amount });
-            render();
+            if (title && category && !isNaN(amount)) {
+                expenses.unshift({ id: Date.now(), title, category, amount });
+                render();
 
-            document.getElementById('desc').value = '';
-            document.getElementById('cat').value = '';
-            document.getElementById('amt').value = '';
+                document.getElementById('desc').value = '';
+                document.getElementById('cat').value = '';
+                document.getElementById('amt').value = '';
+            }
         });
 
         function removeExpense(id) {
             expenses = expenses.filter(item => item.id !== id);
             render();
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
         }
 
         render();
