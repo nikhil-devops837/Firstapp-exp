@@ -1,0 +1,12 @@
+# Ignore Terraform internal cache
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Ignore Node modules
+node_modules/
+
+# OS files
+.DS_Store
