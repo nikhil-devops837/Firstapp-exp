@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: Firstapp-exp-deployment
+  name: firstapp-exp-deployment
   labels:
-    app: Firstapp-exp
+    app: firstapp-exp
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: Firstapp-exp
+      app: firstapp-exp
   template:
     metadata:
       labels:
-        app: Firstapp-exp
+        app: firstapp-exp
     spec:
       containers:
       - name: ent-exp-container
