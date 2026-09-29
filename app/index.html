@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firstapp-exp | Enterprise Expense Tracker</title>
+    <title>Firstapp-exp | Interactive Expense Tracker</title>
     <style>
         * {
             box-sizing: border-box;
@@ -27,7 +27,7 @@
             border: 1px solid #334155;
             border-radius: 12px;
             padding: 32px;
-            max-width: 480px;
+            max-width: 520px;
             width: 100%;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
@@ -36,7 +36,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         h1 {
@@ -57,14 +57,78 @@
         .subtitle {
             color: #94a3b8;
             font-size: 0.95rem;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+        }
+
+        .total-box {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .total-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #bfdbfe;
+        }
+
+        .total-amount {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            background-color: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            padding: 10px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #38bdf8;
+        }
+
+        button.add-btn {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button.add-btn:hover {
+            background-color: #7dd3fc;
+        }
+
+        .expense-list {
+            max-height: 240px;
+            overflow-y: auto;
         }
 
         .item {
             background-color: #0f172a;
             border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -80,14 +144,33 @@
             color: #64748b;
         }
 
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .amount {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             color: #38bdf8;
         }
 
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .delete-btn:hover {
+            opacity: 1;
+        }
+
         .status-bar {
-            margin-top: 24px;
+            margin-top: 20px;
             padding-top: 16px;
             border-top: 1px solid #334155;
             display: flex;
@@ -111,21 +194,19 @@
         </div>
         <p class="subtitle">Enterprise Expense Tracker Service</p>
 
-        <div class="item">
-            <div>
-                <div class="item-title">AWS Cloud Hosting</div>
-                <div class="item-sub">Infrastructure</div>
-            </div>
-            <div class="amount">$140.00</div>
+        <div class="total-box">
+            <span class="total-title">Total Spending</span>
+            <span class="total-amount" id="total-amount">$200.00</span>
         </div>
 
-        <div class="item">
-            <div>
-                <div class="item-title">CI/CD Pipeline Runners</div>
-                <div class="item-sub">DevOps Automation</div>
-            </div>
-            <div class="amount">$60.00</div>
-        </div>
+        <form class="form-group" id="expense-form">
+            <input type="text" id="desc" placeholder="Expense name" required>
+            <input type="text" id="cat" placeholder="Category" required>
+            <input type="number" id="amt" placeholder="Amount" step="0.01" required>
+            <button type="submit" class="add-btn">Add</button>
+        </form>
+
+        <div class="expense-list" id="expense-list"></div>
 
         <div class="status-bar">
             <span>Status: <span class="status-online">Healthy (200 OK)</span></span>
@@ -133,5 +214,57 @@
         </div>
     </div>
 
+    <script>
+        let expenses = [
+            { id: 1, title: 'AWS Cloud Hosting', category: 'Infrastructure', amount: 140.00 },
+            { id: 2, title: 'CI/CD Pipeline Runners', category: 'DevOps Automation', amount: 60.00 }
+        ];
+
+        function render() {
+            const list = document.getElementById('expense-list');
+            list.innerHTML = '';
+            let total = 0;
+
+            expenses.forEach(item => {
+                total += item.amount;
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <div>
+                        <div class="item-title">${item.title}</div>
+                        <div class="item-sub">${item.category}</div>
+                    </div>
+                    <div class="item-right">
+                        <span class="amount">$${item.amount.toFixed(2)}</span>
+                        <button class="delete-btn" onclick="removeExpense(${item.id})">&times;</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+
+            document.getElementById('total-amount').innerText = `$${total.toFixed(2)}`;
+        }
+
+        document.getElementById('expense-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('desc').value;
+            const category = document.getElementById('cat').value;
+            const amount = parseFloat(document.getElementById('amt').value);
+
+            expenses.push({ id: Date.now(), title, category, amount });
+            render();
+
+            document.getElementById('desc').value = '';
+            document.getElementById('cat').value = '';
+            document.getElementById('amt').value = '';
+        });
+
+        function removeExpense(id) {
+            expenses = expenses.filter(item => item.id !== id);
+            render();
+        }
+
+        render();
+    </script>
 </body>
 </html>
