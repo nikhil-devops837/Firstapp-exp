@@ -34,14 +34,15 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          CLEAN_REPO=$(echo "$ECR_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+
           docker build \
-            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
-            -t "$ECR_REGISTRY/$ECR_REPOSITORY:latest" \
+            -t "$ECR_REGISTRY/$CLEAN_REPO:$IMAGE_TAG" \
+            -t "$ECR_REGISTRY/$CLEAN_REPO:latest" \
             app/
 
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:latest"
-
+          docker push "$ECR_REGISTRY/$CLEAN_REPO:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$CLEAN_REPO:latest"
       # Step 5: Configure kubectl for EKS
       - name: Update Kubeconfig
         run: |
