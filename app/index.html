@@ -1,341 +1,402 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firstapp-exp | Interactive Dashboard</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Firstapp-exp - DevOps Architecture & Flow Visualizer</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #050814; color: #e2e8f0; min-height: 100vh; padding: 24px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 1320px; width: 100%; }
+    
+    /* Header Card */
+    .header-card { background: #0b1126; border: 1px solid #1e293b; border-radius: 16px; padding: 24px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
+    .badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-sky { background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+    .badge-green { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
+    .dot-pulse { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+    .main-title { font-size: 26px; font-weight: 800; color: #fff; margin: 8px 0 4px; display: flex; align-items: center; gap: 8px; }
+    .sub-title { color: #94a3b8; font-size: 13px; }
+    
+    /* Buttons */
+    .btn-group { display: flex; flex-wrap: wrap; gap: 10px; }
+    .btn { padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-engineer { background: linear-gradient(135deg, #059669, #0d9488); color: #fff; box-shadow: 0 4px 14px rgba(5,150,105,0.4); }
+    .btn-traffic { background: linear-gradient(135deg, #0284c7, #0891b2); color: #fff; box-shadow: 0 4px 14px rgba(2,132,199,0.4); }
+    .btn-cicd { background: linear-gradient(135deg, #db2777, #9333ea); color: #fff; box-shadow: 0 4px 14px rgba(219,39,119,0.4); }
+    .btn-reset { background: #1e293b; color: #cbd5e1; border: 1px solid #334155; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
 
-        body {
-            background-color: #0b0f19;
-            color: #f8fafc;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 24px 16px;
-        }
+    /* Pill Badges Row */
+    .pills-row { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 24px; padding-bottom: 6px; font-family: monospace; font-size: 12px; }
+    .pill { background: #0e1738; border: 1px solid #1e293b; padding: 6px 14px; border-radius: 8px; white-space: nowrap; }
+    .pill-purple { color: #c084fc; }
+    .pill-amber { color: #fbbf24; }
+    .pill-sky { color: #38bdf8; }
+    .pill-green { color: #34d399; }
+    .pill-pink { color: #f472b6; }
 
-        .dashboard {
-            background-color: #151e32;
-            border: 1px solid #283553;
-            border-radius: 16px;
-            padding: 32px;
-            max-width: 580px;
-            width: 100%;
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-        }
+    /* Info Banner */
+    .info-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .info-card { background: #0e1738; border: 1px solid #1e293b; border-radius: 14px; padding: 18px 22px; display: flex; justify-content: space-between; align-items: center; }
+    .avatar-box { width: 44px; height: 44px; border-radius: 10px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); display: flex; align-items: center; justify-content: center; font-size: 20px; }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
+    /* Canvas Grid */
+    .canvas { background: #090e23; border: 1px solid #1e293b; border-radius: 20px; padding: 24px; box-shadow: 0 25px 30px -10px rgba(0,0,0,0.6); }
+    .tracks-grid { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 20px; }
+    .track-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+    
+    /* Nodes */
+    .node { background: #0d1533; border: 1px solid #1e293b; border-radius: 14px; padding: 16px; margin-bottom: 14px; transition: all 0.3s; }
+    .node-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .node-name { font-weight: 700; color: #fff; font-size: 14px; }
+    .node-desc { font-size: 12px; color: #94a3b8; line-height: 1.5; margin-top: 4px; }
+    .code-block { font-family: monospace; background: #04060d; padding: 6px 10px; border-radius: 6px; color: #38bdf8; font-size: 11px; margin-top: 6px; display: inline-block; }
 
-        h1 {
-            font-size: 1.8rem;
-            color: #ffffff;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
+    /* Highlight effects */
+    .traffic-highlight { border-color: #38bdf8 !important; box-shadow: 0 0 25px rgba(56,189,248,0.5) !important; transform: scale(1.02); }
+    .cicd-highlight { border-color: #ec4899 !important; box-shadow: 0 0 25px rgba(236,72,153,0.5) !important; transform: scale(1.02); }
 
-        .badge {
-            background-color: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(52, 211, 153, 0.3);
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 9999px;
-        }
+    /* VPC & Pods Grid */
+    .vpc-layer { background: #070d22; border: 1px solid rgba(16,185,129,0.3); border-radius: 14px; padding: 16px; }
+    .subnets-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+    .pod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-        .subtitle {
-            color: #8b9bb4;
-            font-size: 0.95rem;
-            margin-bottom: 24px;
-        }
+    /* Status Bar & Console */
+    .status-bar { background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 12px 16px; font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 16px; display: none; justify-content: space-between; align-items: center; }
+    .console { background: #04060d; border: 1px solid #1e293b; border-radius: 10px; padding: 12px; height: 110px; overflow-y: auto; font-family: monospace; font-size: 11px; color: #94a3b8; line-height: 1.6; margin-top: 18px; }
 
-        /* Stats Cards Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 24px;
-        }
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
+    .modal-box { background: #0b1126; border: 1px solid #10b981; border-radius: 16px; padding: 24px; max-width: 440px; width: 100%; box-shadow: 0 0 35px rgba(16,185,129,0.3); }
 
-        .stat-card {
-            background-color: #0b1120;
-            border: 1px solid #1e293b;
-            border-radius: 12px;
-            padding: 16px;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #64748b;
-            margin-bottom: 6px;
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-        }
-
-        .stat-value.total { color: #38bdf8; }
-        .stat-value.count { color: #f43f5e; }
-
-        /* Form Inputs */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 2fr 1.2fr 1fr auto;
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        input {
-            background-color: #0b1120;
-            border: 1px solid #283553;
-            border-radius: 8px;
-            padding: 12px;
-            color: #ffffff;
-            font-size: 0.9rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            border-color: #38bdf8;
-        }
-
-        button.add-btn {
-            background-color: #38bdf8;
-            color: #0b0f19;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        button.add-btn:hover {
-            background-color: #7dd3fc;
-            transform: translateY(-1px);
-        }
-
-        /* Expense List */
-        .list-header {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #64748b;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-            letter-spacing: 0.05em;
-        }
-
-        .expense-list {
-            max-height: 280px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-right: 4px;
-        }
-
-        .item {
-            background-color: #0b1120;
-            border: 1px solid #1e2d4a;
-            border-radius: 10px;
-            padding: 14px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: border-color 0.2s;
-        }
-
-        .item:hover {
-            border-color: #3b82f6;
-        }
-
-        .item-title {
-            font-weight: 600;
-            color: #f1f5f9;
-            font-size: 0.95rem;
-        }
-
-        .item-sub {
-            font-size: 0.78rem;
-            color: #64748b;
-            margin-top: 2px;
-        }
-
-        .item-right {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .amount {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #38bdf8;
-        }
-
-        .delete-btn {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            border-radius: 6px;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1rem;
-            line-height: 1;
-            transition: all 0.2s;
-        }
-
-        .delete-btn:hover {
-            background: #ef4444;
-            color: #ffffff;
-        }
-
-        .empty-state {
-            text-align: center;
-            color: #64748b;
-            padding: 24px;
-            font-size: 0.9rem;
-        }
-
-        /* Footer Status */
-        .status-bar {
-            margin-top: 24px;
-            padding-top: 18px;
-            border-top: 1px solid #283553;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.82rem;
-            color: #64748b;
-        }
-
-        .status-online {
-            color: #34d399;
-            font-weight: 600;
-        }
-    </style>
+    @media (max-width: 992px) {
+      .tracks-grid, .info-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="dashboard">
-        <div class="header">
-            <h1>Firstapp-exp</h1>
-            <span class="badge">Live v1.0</span>
+  <div class="container">
+    <!-- Top Header -->
+    <header class="header-card">
+      <div>
+        <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+          <span class="badge badge-sky">Production Blueprint</span>
+          <span class="badge badge-green"><span class="dot-pulse"></span> Live & Verified</span>
         </div>
-        <p class="subtitle">Enterprise Expense Tracker Dashboard</p>
+        <div class="main-title">☁️ Ent-exp-App Architecture</div>
+        <div class="sub-title">Complete End-to-End Topology: Git &rarr; GitHub Actions &rarr; Terraform &rarr; Amazon EKS &rarr; Ingress-NGINX</div>
+      </div>
 
-        <!-- Dynamic Summary Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Expenses</div>
-                <div class="stat-value total" id="total-amount">$0.00</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Transactions</div>
-                <div class="stat-value count" id="total-count">0</div>
-            </div>
-        </div>
+      <div class="btn-group">
+        <button onclick="openModal()" class="btn btn-engineer">👤 DevOps Engineer Info</button>
+        <button onclick="runTraffic()" class="btn btn-traffic">🌐 Trace User Traffic Flow</button>
+        <button onclick="runCiCd()" class="btn btn-cicd">⚙️ Trace CI/CD Deployment Flow</button>
+        <button onclick="resetFlow()" class="btn btn-reset">↺ Reset</button>
+      </div>
+    </header>
 
-        <!-- Add Expense Form -->
-        <form class="form-grid" id="expense-form">
-            <input type="text" id="desc" placeholder="Expense description" required>
-            <input type="text" id="cat" placeholder="Category" required>
-            <input type="number" id="amt" placeholder="Amount" step="0.01" min="0.01" required>
-            <button type="submit" class="add-btn">+</button>
-        </form>
-
-        <div class="list-header">Active Transactions</div>
-        <div class="expense-list" id="expense-list"></div>
-
-        <div class="status-bar">
-            <span>Status: <span class="status-online">Healthy (200 OK)</span></span>
-            <span>Cluster: AWS EKS</span>
-        </div>
+    <!-- Pills Row -->
+    <div class="pills-row">
+      <div class="pill pill-purple">⬢ Terraform v1.5+</div>
+      <div class="pill pill-amber">☁️ AWS EKS (us-east-1)</div>
+      <div class="pill pill-sky">🐳 Docker Engine</div>
+      <div class="pill pill-sky">☸️ Kubernetes 1.30+</div>
+      <div class="pill pill-green">🛡️ Ingress-NGINX</div>
+      <div class="pill pill-pink">🐙 GitHub Actions CI/CD</div>
     </div>
 
-    <script>
-        // Initial dataset
-        let expenses = [
-            { id: 1, title: 'AWS Cloud Hosting', category: 'Infrastructure', amount: 140.00 },
-            { id: 2, title: 'CI/CD Pipeline Runners', category: 'DevOps Automation', amount: 60.00 }
-        ];
+    <!-- Info Bar -->
+    <div class="info-grid">
+      <div class="info-card">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div class="avatar-box">👨‍🚀</div>
+          <div>
+            <div style="font-size: 11px; text-transform: uppercase; color: #818cf8; font-weight: 700;">DevOps Lead & Architect</div>
+            <div style="font-size: 18px; font-weight: 700; color: #fff;">Salman Khan <span style="font-size: 11px; padding: 2px 6px; background: rgba(16,185,129,0.2); color: #10b981; border-radius: 99px; margin-left: 6px;">Owner</span></div>
+            <div style="font-size: 12px; color: #94a3b8; margin-top: 2px;">Automated GitOps & Infrastructure as Code on Amazon Web Services</div>
+          </div>
+        </div>
+        <div style="text-align: right; font-family: monospace; font-size: 11px;">
+          <span style="color: #64748b;">AWS Identity</span><br>
+          <span style="color: #38bdf8; font-weight: 700;">396633054990</span>
+        </div>
+      </div>
 
-        function render() {
-            const list = document.getElementById('expense-list');
-            list.innerHTML = '';
-            let total = 0;
+      <div class="info-card">
+        <div>
+          <div style="font-size: 11px; color: #94a3b8;">Cluster Uptime / Status</div>
+          <div style="font-size: 16px; font-weight: 700; color: #10b981; margin: 4px 0;">✓ 100% HEALTHY</div>
+          <div style="font-size: 11px; color: #64748b; font-family: monospace;">Pods: 2/2 | Probes: /healthz</div>
+        </div>
+        <div style="font-size: 24px;">💓</div>
+      </div>
+    </div>
 
-            if (expenses.length === 0) {
-                list.innerHTML = `<div class="empty-state">No active expenses logged yet.</div>`;
-            } else {
-                expenses.forEach(item => {
-                    total += item.amount;
-                    const div = document.createElement('div');
-                    div.className = 'item';
-                    div.innerHTML = `
-                        <div>
-                            <div class="item-title">${escapeHtml(item.title)}</div>
-                            <div class="item-sub">${escapeHtml(item.category)}</div>
-                        </div>
-                        <div class="item-right">
-                            <span class="amount">$${item.amount.toFixed(2)}</span>
-                            <button class="delete-btn" onclick="removeExpense(${item.id})">&times;</button>
-                        </div>
-                    `;
-                    list.appendChild(div);
-                });
-            }
+    <!-- Canvas -->
+    <div class="canvas">
+      <!-- Status Step Banner -->
+      <div id="statusBar" class="status-bar">
+        <span id="statusText">Tracing Flow...</span>
+        <span id="statusSub" style="font-family: monospace; font-size: 11px; color: #94a3b8;">Step 1</span>
+      </div>
 
-            document.getElementById('total-amount').innerText = `$${total.toFixed(2)}`;
-            document.getElementById('total-count').innerText = expenses.length;
-        }
+      <div class="tracks-grid">
+        <!-- Track 1: Dev Hub -->
+        <div>
+          <div class="track-title" style="color: #c084fc;">💻 Layer 1: Developer Hub</div>
+          <div id="node-dev" class="node">
+            <div class="node-header">
+              <span class="node-name">VS Code / PowerShell</span>
+              <span style="font-size: 10px; padding: 2px 6px; background: rgba(192,132,252,0.15); color: #c084fc; border-radius: 4px;">Local Host</span>
+            </div>
+            <div class="node-desc">Engineering workspace root:</div>
+            <div class="code-block">C:\...\Ent-exp-App</div>
+            <div style="font-family: monospace; font-size: 11px; color: #94a3b8; margin-top: 10px; border-top: 1px solid #1e293b; padding-top: 8px;">
+              <div>• git commit -m "feat..."</div>
+              <div style="color: #f472b6;">↑ git push origin main</div>
+            </div>
+          </div>
 
-        document.getElementById('expense-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const title = document.getElementById('desc').value.trim();
-            const category = document.getElementById('cat').value.trim();
-            const amount = parseFloat(document.getElementById('amt').value);
+          <div id="node-tf" class="node">
+            <div class="node-header">
+              <span class="node-name">Terraform Engine</span>
+              <span style="font-size: 10px; padding: 2px 6px; background: rgba(192,132,252,0.15); color: #c084fc; border-radius: 4px;">IaC</span>
+            </div>
+            <div class="node-desc">Automates AWS cloud lifecycle:</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; font-family: monospace; font-size: 10px;">
+              <span class="code-block" style="margin:0;">VPC (10.0.0.0/16)</span>
+              <span class="code-block" style="margin:0;">Public/Private Subnets</span>
+              <span class="code-block" style="margin:0;">EKS Cluster</span>
+              <span class="code-block" style="margin:0;">ECR Repo</span>
+            </div>
+          </div>
+        </div>
 
-            if (title && category && !isNaN(amount)) {
-                expenses.unshift({ id: Date.now(), title, category, amount });
-                render();
+        <!-- Track 2: CI/CD -->
+        <div>
+          <div class="track-title" style="color: #f472b6;">⚙️ Layer 2: CI/CD Automation</div>
+          <div id="node-cicd" class="node">
+            <div class="node-header">
+              <span class="node-name">GitHub Actions</span>
+              <span style="font-size: 10px; padding: 2px 6px; background: rgba(244,114,182,0.15); color: #f472b6; border-radius: 4px;">deploy.yml</span>
+            </div>
+            <div class="node-desc">Automated Pipeline:</div>
+            <div style="font-family: monospace; font-size: 11px; display: flex; flex-direction: column; gap: 6px; margin-top: 8px;">
+              <div id="step1" style="background:#04060d; padding:6px 10px; border-radius:6px;">1. Checkout Code</div>
+              <div id="step2" style="background:#04060d; padding:6px 10px; border-radius:6px;">2. AWS STS Auth</div>
+              <div id="step3" style="background:#04060d; padding:6px 10px; border-radius:6px;">3. Docker Build</div>
+              <div id="step4" style="background:#04060d; padding:6px 10px; border-radius:6px;">4. Push to ECR</div>
+              <div id="step5" style="background:#04060d; padding:6px 10px; border-radius:6px;">5. EKS Rollout</div>
+            </div>
+          </div>
 
-                document.getElementById('desc').value = '';
-                document.getElementById('cat').value = '';
-                document.getElementById('amt').value = '';
-            }
-        });
+          <div id="node-ecr" class="node">
+            <div class="node-header">
+              <span class="node-name">Amazon ECR</span>
+              <span style="font-size: 10px; padding: 2px 6px; background: rgba(251,191,36,0.15); color: #fbbf24; border-radius: 4px;">Registry</span>
+            </div>
+            <div class="node-desc">Repo: <b style="color:#fbbf24;">ent-exp-app-repo</b></div>
+            <div class="code-block">396633054990.dkr.ecr.us-east-1</div>
+          </div>
+        </div>
 
-        function removeExpense(id) {
-            expenses = expenses.filter(item => item.id !== id);
-            render();
-        }
+        <!-- Track 3: AWS Cloud VPC -->
+        <div>
+          <div class="track-title" style="color: #38bdf8; justify-content: space-between;">
+            <span>☁️ Layer 3: AWS Cloud VPC (10.0.0.0/16)</span>
+            <span style="font-family: monospace; font-size: 10px;">Region: us-east-1</span>
+          </div>
 
-        function escapeHtml(str) {
-            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-        }
+          <!-- Public Subnet Layer -->
+          <div class="subnets-row">
+            <div id="node-user" class="node" style="margin:0;">
+              <div style="font-size: 11px; color:#94a3b8;">Public Client</div>
+              <div class="node-name" style="margin-top:4px;">End User Browser</div>
+              <div class="node-desc">HTTP Port 80 Request</div>
+            </div>
+            <div id="node-nlb" class="node" style="margin:0;">
+              <div style="font-size: 11px; color:#38bdf8; font-weight:700;">AWS NLB (Layer 4)</div>
+              <div class="node-name" style="margin-top:4px;">Network Load Balancer</div>
+              <div class="node-desc" style="font-family: monospace; font-size: 10px;">DNS: aa592a986...</div>
+            </div>
+          </div>
 
-        render();
-    </script>
+          <!-- Private Subnet / EKS Core -->
+          <div class="vpc-layer" style="margin-top: 14px;">
+            <div style="font-size: 11px; font-weight:700; color:#34d399; margin-bottom: 10px;">
+              🟢 PRIVATE SUBNETS &middot; EKS CLUSTER: ent-exp-app-eks
+            </div>
+
+            <div id="node-ingress" class="node" style="margin-bottom: 10px; background:#0e1a38;">
+              <div class="node-name">Ingress-NGINX Controller Pod</div>
+              <div class="node-desc">Evaluates rules: Route <b style="color:#38bdf8;">/</b> &rarr; <b style="color:#34d399;">ent-exp-app-service:80</b></div>
+            </div>
+
+            <div id="node-service" class="node" style="margin-bottom: 10px; background:#0e1a38;">
+              <div class="node-header">
+                <span class="node-name">ent-exp-app-service</span>
+                <span style="font-family: monospace; font-size: 10px; color:#38bdf8;">Type: ClusterIP</span>
+              </div>
+              <div class="node-desc">Internal round-robin distribution to ready pods</div>
+            </div>
+
+            <div class="pod-grid">
+              <div id="node-pod1" class="node" style="margin:0; background:#0b162f;">
+                <div class="node-header">
+                  <span style="font-weight:700; font-size:12px; color:#38bdf8;">Pod Replica #1</span>
+                  <span style="font-size:9px; background:rgba(16,185,129,0.2); color:#10b981; padding:2px 4px; border-radius:4px; font-weight:700;">1/1 RUNNING</span>
+                </div>
+                <div style="font-family: monospace; font-size:10px; color:#94a3b8; margin-top:6px;">/healthz (200 OK)</div>
+              </div>
+
+              <div id="node-pod2" class="node" style="margin:0; background:#0b162f;">
+                <div class="node-header">
+                  <span style="font-weight:700; font-size:12px; color:#38bdf8;">Pod Replica #2</span>
+                  <span style="font-size:9px; background:rgba(16,185,129,0.2); color:#10b981; padding:2px 4px; border-radius:4px; font-weight:700;">1/1 RUNNING</span>
+                </div>
+                <div style="font-family: monospace; font-size:10px; color:#94a3b8; margin-top:6px;">/healthz (200 OK)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Console Log -->
+      <div class="console" id="consoleBox">
+        <div>> [System Ready] Ent-exp-App Architecture Canvas initialized. No CDN dependency.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DevOps Engineer Modal -->
+  <div id="engineerModal" class="modal-overlay">
+    <div class="modal-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <span style="font-size: 11px; text-transform: uppercase; color: #10b981; font-weight: 700; letter-spacing: 1px;">Engineer Profile</span>
+        <button onclick="closeModal()" style="background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer;">✕</button>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 16px;">
+        <div class="avatar-box" style="width: 52px; height: 52px; font-size: 26px;">👨‍💻</div>
+        <div>
+          <div style="font-size: 20px; font-weight: 800; color: #fff;">DevOps Engineer Salman Khan</div>
+          <div style="font-size: 12px; color: #34d399; font-weight: 600;">Project Lead & Architect</div>
+        </div>
+      </div>
+      <div style="font-family: monospace; font-size: 12px; background: #04060d; padding: 12px; border-radius: 8px; line-height: 1.8; color: #cbd5e1;">
+        <div>• Project: <b style="color:#38bdf8;">Ent-exp-App</b></div>
+        <div>• AWS Account: <b style="color:#fbbf24;">396633054990</b></div>
+        <div>• EKS Cluster: <b style="color:#34d399;">ent-exp-app-eks</b></div>
+        <div>• Automation: <b style="color:#f472b6;">GitHub Actions CI/CD</b></div>
+      </div>
+      <button onclick="closeModal()" class="btn btn-engineer" style="width: 100%; justify-content: center; margin-top: 18px;">Close Window</button>
+    </div>
+  </div>
+
+  <script>
+    let running = false;
+
+    function openModal() {
+      document.getElementById('engineerModal').style.display = 'flex';
+      log('DevOps Engineer Info opened: Salman Khan', '#10b981');
+    }
+
+    function closeModal() {
+      document.getElementById('engineerModal').style.display = 'none';
+    }
+
+    function log(msg, color = '#94a3b8') {
+      const box = document.getElementById('consoleBox');
+      const time = new Date().toLocaleTimeString();
+      box.innerHTML += `<div style="color:${color}">> [${time}] ${msg}</div>`;
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function clearHL() {
+      document.querySelectorAll('.node').forEach(el => el.classList.remove('traffic-highlight', 'cicd-highlight'));
+      for(let i=1; i<=5; i++) {
+        const s = document.getElementById('step' + i);
+        if(s) s.style.background = '#04060d';
+      }
+    }
+
+    function resetFlow() {
+      clearHL();
+      document.getElementById('statusBar').style.display = 'none';
+      running = false;
+      log('Flow states reset.');
+    }
+
+    const wait = ms => new Promise(res => setTimeout(res, ms));
+
+    async function runTraffic() {
+      if(running) return; running = true; clearHL();
+      const sb = document.getElementById('statusBar');
+      const txt = document.getElementById('statusText');
+      const sub = document.getElementById('statusSub');
+      sb.style.display = 'flex';
+
+      txt.innerText = 'Step 1: End user opens Load Balancer URL in Browser'; sub.innerText = 'HTTP GET /';
+      document.getElementById('node-user').classList.add('traffic-highlight');
+      log('User initiated HTTP GET request to Load Balancer DNS', '#38bdf8');
+      await wait(1200);
+
+      clearHL();
+      txt.innerText = 'Step 2: AWS NLB accepts TCP connection on Port 80'; sub.innerText = 'NLB &rarr; NodePort';
+      document.getElementById('node-nlb').classList.add('traffic-highlight');
+      log('AWS NLB routed packet to private subnet worker node', '#38bdf8');
+      await wait(1200);
+
+      clearHL();
+      txt.innerText = 'Step 3: Ingress-NGINX routes request to ent-exp-app-service'; sub.innerText = 'ClusterIP Route';
+      document.getElementById('node-ingress').classList.add('traffic-highlight');
+      log('Ingress controller matched path / to ent-exp-app-service', '#38bdf8');
+      await wait(1200);
+
+      clearHL();
+      const targetPod = Math.random() > 0.5 ? 'node-pod1' : 'node-pod2';
+      txt.innerText = `Step 4: ${targetPod === 'node-pod1' ? 'Pod #1' : 'Pod #2'} returned 200 OK`; sub.innerText = 'Latency: 12ms';
+      document.getElementById(targetPod).classList.add('traffic-highlight');
+      log(`Response served successfully with status 200 OK from ${targetPod}!`, '#10b981');
+      running = false;
+    }
+
+    async function runCiCd() {
+      if(running) return; running = true; clearHL();
+      const sb = document.getElementById('statusBar');
+      const txt = document.getElementById('statusText');
+      const sub = document.getElementById('statusSub');
+      sb.style.display = 'flex';
+
+      txt.innerText = 'CI/CD Step 1: Code committed and pushed to GitHub main'; sub.innerText = 'git push origin main';
+      document.getElementById('node-dev').classList.add('cicd-highlight');
+      document.getElementById('step1').style.background = '#831843';
+      log('Code changes pushed to repository origin main', '#f472b6');
+      await wait(1200);
+
+      clearHL();
+      txt.innerText = 'CI/CD Step 2: GitHub Actions builds Docker image'; sub.innerText = 'Docker Build';
+      document.getElementById('node-cicd').classList.add('cicd-highlight');
+      document.getElementById('step3').style.background = '#831843';
+      log('GitHub Actions completed container build job', '#f472b6');
+      await wait(1200);
+
+      clearHL();
+      txt.innerText = 'CI/CD Step 3: Docker image pushed to Amazon ECR'; sub.innerText = 'ent-exp-app-repo:latest';
+      document.getElementById('node-ecr').classList.add('cicd-highlight');
+      document.getElementById('step4').style.background = '#831843';
+      log('Tagged image digest pushed to Amazon ECR', '#fbbf24');
+      await wait(1200);
+
+      clearHL();
+      txt.innerText = 'CI/CD Step 4: Zero-downtime rolling update applied on EKS'; sub.innerText = 'kubectl rollout status';
+      document.getElementById('node-pod1').classList.add('cicd-highlight');
+      document.getElementById('node-pod2').classList.add('cicd-highlight');
+      document.getElementById('step5').style.background = '#065f46';
+      log('EKS pods rollout complete with zero user downtime!', '#10b981');
+      running = false;
+    }
+  </script>
 </body>
 </html>
